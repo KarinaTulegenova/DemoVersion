@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Habit Tracker | Welcome</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light py-3">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">Habit Tracker</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarMain"
+          aria-controls="navbarMain"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarMain">
+          <ul class="navbar-nav ms-auto align-items-lg-center">
+            <li class="nav-item">
+              <a class="nav-link active" href="index.html">Home</a>
+            </li>
+            <li class="nav-item" data-auth-visible="logged-in">
+              <a class="nav-link" href="dashboard.html">Dashboard</a>
+            </li>
+            <li class="nav-item" data-auth-visible="logged-in">
+              <a class="nav-link" href="profile.html">Profile</a>
+            </li>
+            <li class="nav-item" data-auth-visible="logged-in">
+              <a class="nav-link" href="categories.html">Categories</a>
+            </li>
+            <li class="nav-item" data-auth-visible="logged-in">
+              <a class="nav-link" href="reminders.html">Reminders</a>
+            </li>
+            <li class="nav-item" data-auth-visible="logged-out">
+              <a class="nav-link" href="login.html">Login</a>
+            </li>
+            <li class="nav-item" data-auth-visible="logged-out">
+              <a class="btn btn-brand ms-lg-3" href="register.html">Get Started</a>
+            </li>
+            <li class="nav-item" data-auth-visible="logged-in">
+              <a class="nav-link" href="#" id="logoutLink">Logout</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-5">
+      <section class="hero p-5 mb-5">
+        <div class="row align-items-center g-5">
+          <div class="col-lg-6">
+            <span class="badge rounded-pill mb-3">Track consistently</span>
+            <h1 class="display-5 fw-bold">Build habits that stick with a clear daily rhythm.</h1>
+            <p class="lead text-white-50">
+              Stay on top of your routines, log progress in seconds, and see the momentum build with
+              Habit Tracker.
+            </p>
+            <div class="d-flex flex-wrap gap-3 mt-4">
+              <a class="btn btn-brand btn-lg" href="register.html">Create Account</a>
+              <a class="btn btn-outline-light btn-lg" href="login.html">Sign In</a>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card p-4 glass-card">
+              <div class="card-body">
+                <h5 class="card-title">What you can do</h5>
+                <ul class="list-unstyled mt-3 mb-0">
+                  <li class="d-flex align-items-center gap-3 mb-3">
+                    <i class="fa-solid fa-list-check text-warning"></i>
+                    Create and manage habits with flexible schedules.
+                  </li>
+                  <li class="d-flex align-items-center gap-3 mb-3">
+                    <i class="fa-solid fa-calendar-check text-warning"></i>
+                    Log daily progress and keep streaks visible.
+                  </li>
+                  <li class="d-flex align-items-center gap-3 mb-3">
+                    <i class="fa-solid fa-bell text-warning"></i>
+                    Schedule reminders and categorize routines.
+                  </li>
+                  <li class="d-flex align-items-center gap-3">
+                    <i class="fa-solid fa-chart-line text-warning"></i>
+                    Review your momentum anytime on the dashboard.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="row g-4">
+        <div class="col-md-4">
+          <div class="card h-100 glass-card">
+            <div class="card-body">
+              <h5 class="card-title">Plan with clarity</h5>
+              <p class="card-text">
+                Choose a frequency, add a start date, and keep every habit organized in one place.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 glass-card">
+            <div class="card-body">
+              <h5 class="card-title">Log in seconds</h5>
+              <p class="card-text">
+                Add daily check-ins with notes and status updates directly from your dashboard.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 glass-card">
+            <div class="card-body">
+              <h5 class="card-title">Stay focused</h5>
+              <p class="card-text">
+                Set reminders so you never miss a repetition and build a consistent practice.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="py-4 text-center footer-note">
+      <small>Habit Tracker &middot; Keep your routines in motion</small>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+  </body>
+</html>

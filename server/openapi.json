@@ -1,0 +1,57 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Habit Tracker API",
+    "version": "1.0.0"
+  },
+  "servers": [{ "url": "http://localhost:5000/api" }],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "paths": {
+    "/auth/register": { "post": { "summary": "Register", "responses": { "201": { "description": "Created" } } } },
+    "/auth/login": { "post": { "summary": "Login", "responses": { "200": { "description": "OK" } } } },
+    "/users/profile": {
+      "get": { "summary": "Get profile", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "OK" } } },
+      "put": { "summary": "Update profile", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "OK" } } }
+    },
+    "/habits": {
+      "get": { "summary": "List habits", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Create habit", "security": [{ "bearerAuth": [] }], "responses": { "201": { "description": "Created" } } }
+    },
+    "/habits/{id}": {
+      "put": { "summary": "Update habit", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "OK" } } },
+      "delete": { "summary": "Delete habit", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "OK" } } }
+    },
+    "/habits/{id}/logs": {
+      "get": { "summary": "List logs", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Create log", "security": [{ "bearerAuth": [] }], "responses": { "201": { "description": "Created" } } }
+    },
+    "/habits/stats": {
+      "get": { "summary": "Habit stats", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "OK" } } }
+    },
+    "/logs/{logId}": { "delete": { "summary": "Delete log", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "OK" } } } },
+    "/categories": {
+      "get": { "summary": "List categories", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Create category", "security": [{ "bearerAuth": [] }], "responses": { "201": { "description": "Created" } } }
+    },
+    "/categories/{id}": {
+      "put": { "summary": "Update category", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "OK" } } },
+      "delete": { "summary": "Delete category", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "OK" } } }
+    },
+    "/reminders": {
+      "get": { "summary": "List reminders", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Create reminder", "security": [{ "bearerAuth": [] }], "responses": { "201": { "description": "Created" } } }
+    },
+    "/reminders/{id}": {
+      "put": { "summary": "Update reminder", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "OK" } } },
+      "delete": { "summary": "Delete reminder", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "OK" } } }
+    }
+  }
+}
