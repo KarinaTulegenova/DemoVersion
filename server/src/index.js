@@ -11,6 +11,17 @@ connectDB(process.env.MONGODB_URI)
     });
   })
   .catch((error) => {
-    console.error("Failed to start server:", error.message);
+    const uri = process.env.MONGODB_URI || "";
+    const isLocalMongo =
+      uri.includes("127.0.0.1") || uri.includes("localhost");
+
+    if (isLocalMongo && process.env.NODE_ENV === "production") {
+      console.error(
+        "Failed to start server: MONGODB_URI points to local MongoDB. " +
+          "Use a cloud database URI (MongoDB Atlas or Render Mongo) in Render environment variables."
+      );
+    } else {
+      console.error("Failed to start server:", error.message);
+    }
     process.exit(1);
   });

@@ -31,6 +31,18 @@ Habit Tracker is a full-stack project with a Bootstrap-based frontend and a Node
    ```
 4. The API will run on `http://localhost:5001` by default.
 
+### Deploy on Render (Backend)
+Use `server` as the service root and configure:
+- Build command: `npm install && npm run build`
+- Start command: `npm start`
+- Environment variables:
+  - `NODE_ENV=production`
+  - `MONGODB_URI=<your cloud MongoDB URI>`
+  - `JWT_SECRET=<strong secret>`
+  - `PORT` is optional on Render
+
+Important: do not use `mongodb://127.0.0.1:27017/...` on Render. That works only for local development.
+
 ### 2) Frontend (Static)
 1. Open the `frontend/` folder with a static server (e.g., Live Server).
 2. Open `index.html` in the browser.
