@@ -47,6 +47,19 @@ Important: do not use `mongodb://127.0.0.1:27017/...` on Render. That works only
 1. Open the `frontend/` folder with a static server (e.g., Live Server).
 2. Open `index.html` in the browser.
 
+### Deploy on Render (Frontend Static Site)
+1. In Render, click `New` -> `Static Site`.
+2. Connect this GitHub repo.
+3. Configure:
+   - Root Directory: `frontend`
+   - Build Command: leave empty
+   - Publish Directory: `.`
+4. Deploy the site.
+
+The frontend is configured to use:
+- local: `http://localhost:5001/api`
+- production: `https://demoversion-p9vl.onrender.com/api`
+
 ### Configure API Base URL
 By default, the frontend uses `http://localhost:5001/api`. You can override it:
 ```js

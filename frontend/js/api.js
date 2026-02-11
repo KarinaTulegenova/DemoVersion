@@ -1,6 +1,9 @@
 // Shared API helpers for JWT-authenticated requests.
 const API_BASE =
-  localStorage.getItem("apiBase") || `${window.location.origin}/api`;
+  localStorage.getItem("apiBase") ||
+  (window.location.hostname === "localhost"
+    ? "http://localhost:5001/api"
+    : "https://demoversion-p9vl.onrender.com/api");
 
 function getToken() {
   return localStorage.getItem("token");
