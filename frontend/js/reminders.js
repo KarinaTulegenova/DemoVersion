@@ -3,6 +3,25 @@ let reminders = [];
 let habits = [];
 let reminderModal = null;
 
+function notificationPermissionLabel(permission) {
+  if (permission === "granted") return "Notifications enabled";
+  if (permission === "denied") return "Notifications blocked";
+  return "Enable Notifications";
+}
+
+function syncNotificationsButton() {
+  const button = document.getElementById("enableNotificationsBtn");
+  if (!button) return;
+  if (!("Notification" in window)) {
+    button.textContent = "Notifications unsupported";
+    button.disabled = true;
+    return;
+  }
+  const permission = Notification.permission;
+  button.textContent = notificationPermissionLabel(permission);
+  button.disabled = permission === "granted";
+}
+
 function setReminderModalMode(isEdit) {
   const title = document.getElementById("reminderModalLabel");
   const button = document.getElementById("saveReminderBtn");
@@ -225,6 +244,23 @@ async function deleteReminder(reminder) {
   }
 }
 
+async function enableNotifications() {
+  if (typeof requestReminderNotificationPermission !== "function") return;
+  const permission = await requestReminderNotificationPermission();
+  syncNotificationsButton();
+  if (permission === "granted") {
+    showAlert("alertContainer", "Browser notifications enabled.", "success");
+    return;
+  }
+  if (permission === "denied") {
+    showAlert("alertContainer", "Notifications are blocked in browser settings.");
+    return;
+  }
+  if (permission === "unsupported") {
+    showAlert("alertContainer", "This browser does not support notifications.");
+  }
+}
+
 window.addEventListener("DOMContentLoaded", () => {
   const modalEl = document.getElementById("reminderModal");
   reminderModal = new bootstrap.Modal(modalEl);
@@ -236,8 +272,10 @@ window.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("saveReminderBtn").addEventListener("click", saveReminder);
   document.getElementById("reminderHabit").addEventListener("change", syncReminderCategory);
+  document.getElementById("enableNotificationsBtn").addEventListener("click", enableNotifications);
 
   setReminderModalMode(false);
+  syncNotificationsButton();
   loadHabits();
   loadReminders();
 });

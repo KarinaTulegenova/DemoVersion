@@ -6,6 +6,7 @@ const API_BASE =
     : "https://demoversion-p9vl.onrender.com/api");
 const REMINDER_NOTIFIED_SLOTS_KEY = "reminderNotifiedSlots";
 const REMINDER_POLL_MS = 30 * 1000;
+const REMINDER_GRACE_MINUTES = 2;
 
 let reminderNotifierStarted = false;
 let reminderNotifierTimer = null;
@@ -123,12 +124,23 @@ function dayMatches(daysOfWeek, date) {
   return daysOfWeek.some((day) => String(day || "").slice(0, 3).toLowerCase() === current);
 }
 
-function isReminderDueNow(reminder, now) {
-  if (!reminder || reminder.enabled === false) return false;
+function getReminderDueDate(reminder, now) {
+  if (!reminder || reminder.enabled === false) return null;
   const time = parseReminderTime(reminder.time);
-  if (!time) return false;
-  if (!dayMatches(reminder.daysOfWeek, now)) return false;
-  return time.hour === now.getHours() && time.minute === now.getMinutes();
+  if (!time) return null;
+
+  const dueDate = new Date(now);
+  dueDate.setSeconds(0, 0);
+  dueDate.setHours(time.hour, time.minute, 0, 0);
+  if (!dayMatches(reminder.daysOfWeek, dueDate)) return null;
+  return dueDate;
+}
+
+function isReminderDueNow(reminder, now) {
+  const dueDate = getReminderDueDate(reminder, now);
+  if (!dueDate) return false;
+  const diffMs = now.getTime() - dueDate.getTime();
+  return diffMs >= 0 && diffMs <= REMINDER_GRACE_MINUTES * 60 * 1000;
 }
 
 function showReminderNotification(reminder) {
@@ -159,7 +171,9 @@ async function checkDueReminders() {
     const reminderId = reminder._id || reminder.id;
     if (!reminderId) return;
 
-    const slot = reminderSlot(now, reminder.time);
+    const dueDate = getReminderDueDate(reminder, now);
+    if (!dueDate) return;
+    const slot = reminderSlot(dueDate, reminder.time);
     if (slots[reminderId] === slot) return;
 
     showReminderNotification(reminder);
@@ -176,18 +190,24 @@ async function startReminderNotifications() {
   if (!getToken()) return;
 
   reminderNotifierStarted = true;
-  if (Notification.permission === "default") {
-    try {
-      await Notification.requestPermission();
-    } catch (error) {
-      return;
-    }
-  }
-
   if (Notification.permission !== "granted") return;
 
   await checkDueReminders();
   reminderNotifierTimer = setInterval(checkDueReminders, REMINDER_POLL_MS);
+}
+
+async function requestReminderNotificationPermission() {
+  if (!("Notification" in window)) return "unsupported";
+  if (Notification.permission !== "default") return Notification.permission;
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission === "granted") {
+      await startReminderNotifications();
+    }
+    return permission;
+  } catch (error) {
+    return "denied";
+  }
 }
 
 function stopReminderNotifications() {
@@ -200,3 +220,4 @@ function stopReminderNotifications() {
 
 window.startReminderNotifications = startReminderNotifications;
 window.stopReminderNotifications = stopReminderNotifications;
+window.requestReminderNotificationPermission = requestReminderNotificationPermission;
