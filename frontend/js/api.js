@@ -4,6 +4,11 @@ const API_BASE =
   (window.location.hostname === "localhost"
     ? "http://localhost:5001/api"
     : "https://demoversion-p9vl.onrender.com/api");
+const REMINDER_NOTIFIED_SLOTS_KEY = "reminderNotifiedSlots";
+const REMINDER_POLL_MS = 30 * 1000;
+
+let reminderNotifierStarted = false;
+let reminderNotifierTimer = null;
 
 function getToken() {
   return localStorage.getItem("token");
@@ -81,3 +86,117 @@ window.showAlert = showAlert;
 window.getToken = getToken;
 window.setToken = setToken;
 window.clearToken = clearToken;
+
+function loadNotifiedSlots() {
+  try {
+    const raw = localStorage.getItem(REMINDER_NOTIFIED_SLOTS_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function saveNotifiedSlots(slots) {
+  localStorage.setItem(REMINDER_NOTIFIED_SLOTS_KEY, JSON.stringify(slots));
+}
+
+function reminderSlot(date, time) {
+  return `${date.toISOString().slice(0, 10)}:${time}`;
+}
+
+function parseReminderTime(time) {
+  if (!time || typeof time !== "string") return null;
+  const parts = time.split(":");
+  if (parts.length < 2) return null;
+  const hour = Number(parts[0]);
+  const minute = Number(parts[1]);
+  if (!Number.isInteger(hour) || !Number.isInteger(minute)) return null;
+  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+  return { hour, minute };
+}
+
+function dayMatches(daysOfWeek, date) {
+  if (!Array.isArray(daysOfWeek) || !daysOfWeek.length) return true;
+  const current = date.toLocaleDateString("en-US", { weekday: "short" }).toLowerCase();
+  return daysOfWeek.some((day) => String(day || "").slice(0, 3).toLowerCase() === current);
+}
+
+function isReminderDueNow(reminder, now) {
+  if (!reminder || reminder.enabled === false) return false;
+  const time = parseReminderTime(reminder.time);
+  if (!time) return false;
+  if (!dayMatches(reminder.daysOfWeek, now)) return false;
+  return time.hour === now.getHours() && time.minute === now.getMinutes();
+}
+
+function showReminderNotification(reminder) {
+  const habitTitle = reminder.habit?.title || "Habit";
+  const categoryName = reminder.habit?.category?.name;
+  const body = categoryName
+    ? `Category: ${categoryName}. Time to complete "${habitTitle}".`
+    : `Time to complete "${habitTitle}".`;
+  new Notification(`Reminder: ${habitTitle}`, { body });
+}
+
+async function checkDueReminders() {
+  if (!getToken() || Notification.permission !== "granted") return;
+  let reminders = [];
+  try {
+    const data = await apiRequest("GET", "/reminders");
+    reminders = Array.isArray(data) ? data : [];
+  } catch (error) {
+    return;
+  }
+
+  const now = new Date();
+  const slots = loadNotifiedSlots();
+  let changed = false;
+
+  reminders.forEach((reminder) => {
+    if (!isReminderDueNow(reminder, now)) return;
+    const reminderId = reminder._id || reminder.id;
+    if (!reminderId) return;
+
+    const slot = reminderSlot(now, reminder.time);
+    if (slots[reminderId] === slot) return;
+
+    showReminderNotification(reminder);
+    slots[reminderId] = slot;
+    changed = true;
+  });
+
+  if (changed) saveNotifiedSlots(slots);
+}
+
+async function startReminderNotifications() {
+  if (reminderNotifierStarted) return;
+  if (!("Notification" in window)) return;
+  if (!getToken()) return;
+
+  reminderNotifierStarted = true;
+  if (Notification.permission === "default") {
+    try {
+      await Notification.requestPermission();
+    } catch (error) {
+      return;
+    }
+  }
+
+  if (Notification.permission !== "granted") return;
+
+  await checkDueReminders();
+  reminderNotifierTimer = setInterval(checkDueReminders, REMINDER_POLL_MS);
+}
+
+function stopReminderNotifications() {
+  if (reminderNotifierTimer) {
+    clearInterval(reminderNotifierTimer);
+    reminderNotifierTimer = null;
+  }
+  reminderNotifierStarted = false;
+}
+
+window.startReminderNotifications = startReminderNotifications;
+window.stopReminderNotifications = stopReminderNotifications;

@@ -19,8 +19,14 @@ function setupAuthGuards() {
   const authState = document.body.dataset.auth;
   if (authState === "required") {
     requireAuth();
+    if (typeof startReminderNotifications === "function") {
+      startReminderNotifications();
+    }
   }
   if (authState === "guest") {
+    if (typeof stopReminderNotifications === "function") {
+      stopReminderNotifications();
+    }
     redirectIfAuth();
   }
 }
@@ -31,6 +37,9 @@ function setupLogoutLink() {
 
   logoutLink.addEventListener("click", (event) => {
     event.preventDefault();
+    if (typeof stopReminderNotifications === "function") {
+      stopReminderNotifications();
+    }
     clearToken();
     window.location.href = "index.html";
   });
