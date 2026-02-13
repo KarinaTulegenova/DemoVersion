@@ -1,4 +1,5 @@
 const Category = require("../models/Category");
+const Habit = require("../models/Habit");
 const { asyncHandler } = require("../middleware/async");
 
 const listCategories = asyncHandler(async (req, res) => {
@@ -34,6 +35,7 @@ const deleteCategory = asyncHandler(async (req, res) => {
     return res.status(403).json({ message: "Forbidden." });
   }
 
+  await Habit.updateMany({ user: category.user, category: category._id }, { category: null });
   await category.deleteOne();
   return res.json({ message: "Category deleted." });
 });

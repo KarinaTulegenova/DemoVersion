@@ -6,6 +6,7 @@ const habitSchema = Joi.object({
   frequency: Joi.string().valid("daily", "weekly", "custom").required(),
   startDate: Joi.date().optional(),
   isActive: Joi.boolean().optional(),
+  categoryId: Joi.string().allow("", null).optional(),
 });
 
 module.exports = { habitSchema };

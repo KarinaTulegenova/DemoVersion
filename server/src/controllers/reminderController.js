@@ -15,7 +15,7 @@ async function verifyHabitOwnership(habitId, user) {
 
 const listReminders = asyncHandler(async (req, res) => {
   const reminders = await Reminder.find({ user: req.user.id })
-    .populate("habit", "title")
+    .populate({ path: "habit", select: "title category", populate: { path: "category", select: "name color" } })
     .sort({ createdAt: -1 });
   return res.json(reminders);
 });
@@ -33,6 +33,11 @@ const createReminder = asyncHandler(async (req, res) => {
     time: req.body.time,
     daysOfWeek: req.body.daysOfWeek,
     enabled: req.body.enabled ?? true,
+  });
+  await reminder.populate({
+    path: "habit",
+    select: "title category",
+    populate: { path: "category", select: "name color" },
   });
   return res.status(201).json(reminder);
 });
@@ -59,6 +64,11 @@ const updateReminder = asyncHandler(async (req, res) => {
   reminder.daysOfWeek = req.body.daysOfWeek ?? reminder.daysOfWeek;
   reminder.enabled = req.body.enabled ?? reminder.enabled;
   await reminder.save();
+  await reminder.populate({
+    path: "habit",
+    select: "title category",
+    populate: { path: "category", select: "name color" },
+  });
 
   return res.json(reminder);
 });

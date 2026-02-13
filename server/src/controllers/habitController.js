@@ -1,11 +1,13 @@
 const Habit = require("../models/Habit");
 const HabitLog = require("../models/HabitLog");
+const Reminder = require("../models/Reminder");
+const Category = require("../models/Category");
 const { asyncHandler } = require("../middleware/async");
 const { startOfDay, endOfDay } = require("../utils/date");
 
 const listHabits = asyncHandler(async (req, res) => {
   const filter = { user: req.user.id };
-  const habits = await Habit.find(filter).sort({ createdAt: -1 });
+  const habits = await Habit.find(filter).populate("category", "name color").sort({ createdAt: -1 });
   return res.json(habits);
 });
 
@@ -39,7 +41,17 @@ const getStats = asyncHandler(async (req, res) => {
 });
 
 const createHabit = asyncHandler(async (req, res) => {
-  const habit = await Habit.create({ ...req.body, user: req.user.id });
+  const { category, error, status } = await resolveCategory(req.body.categoryId, req.user.id);
+  if (error) {
+    return res.status(status).json({ message: error });
+  }
+
+  const payload = { ...req.body, user: req.user.id };
+  delete payload.categoryId;
+  if (category !== undefined) payload.category = category;
+
+  const habit = await Habit.create(payload);
+  await habit.populate("category", "name color");
   return res.status(201).json(habit);
 });
 
@@ -52,8 +64,17 @@ const updateHabit = asyncHandler(async (req, res) => {
     return res.status(403).json({ message: "Forbidden." });
   }
 
-  Object.assign(habit, req.body);
+  const { category, error, status } = await resolveCategory(req.body.categoryId, req.user.id);
+  if (error) {
+    return res.status(status).json({ message: error });
+  }
+
+  const updates = { ...req.body };
+  delete updates.categoryId;
+  Object.assign(habit, updates);
+  if (category !== undefined) habit.category = category;
   await habit.save();
+  await habit.populate("category", "name color");
   return res.json(habit);
 });
 
@@ -67,6 +88,7 @@ const deleteHabit = asyncHandler(async (req, res) => {
   }
 
   await HabitLog.deleteMany({ habit: habit._id });
+  await Reminder.deleteMany({ habit: habit._id });
   await habit.deleteOne();
   return res.json({ message: "Habit deleted." });
 });
@@ -124,6 +146,18 @@ module.exports = {
   createLog,
   deleteLog,
 };
+
+async function resolveCategory(categoryId, userId) {
+  if (categoryId === undefined) return { category: undefined };
+  if (!categoryId) return { category: null };
+
+  const category = await Category.findOne({ _id: categoryId, user: userId });
+  if (!category) {
+    return { error: "Category not found.", status: 404 };
+  }
+
+  return { category: category._id };
+}
 
 function calculateBestStreak(dates) {
   const unique = new Set(
